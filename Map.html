@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/x-icon" href="./Logos/logo3.ico">
+    <title>WeatherNavigator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/fec3687d2b.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-bing-layer/leaflet-bing-layer.js"></script>
+    <script src="https://maps.api.sygic.com/js/sygic/1.3.0/leaflet.sygic.js"></script>
+    <script src="https://www.bing.com/api/maps/mapcontrol?callback=initMap" async defer></script>
+    <link rel="stylesheet" href="style.css">
+    <style type="text/css">
+        #Aq, #Sr, #Ss, #Ws, #Wd, #Vis, #Humid, #Rf, #Cc, #Precip, #Uv, #Pressure, #Type, #Aicon{
+            position: relative;
+            cursor: pointer;
+        }
+        #vistoolTipText, #sstoolTipText, #wdtoolTipText, #uvtoolTipText, #humidtoolTipText, #srtoolTipText, #presstoolTipText, #perciptoolTipText, #rftoolTipText, #cctoolTipText, #wstoolTipText, #aqtoolTipText, #typetoolTipText, #aicontoolTipText{
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            background-color: #000;
+            color: white;
+            white-space: nowrap;
+            padding: 10px 15px;
+            border-radius: 20px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #sstoolTipText:before, #typetoolTipText:before, #vistoolTipText:before, #wdtoolTipText:before, #uvtoolTipText:before, #humidtoolTipText:before, #srtoolTipText:before, #presstoolTipText:before, #perciptoolTipText:before, #rftoolTipText:before, #cctoolTipText:before, #wstoolTipText:before, #aqtoolTipText:before, #aicontoolTipText:before{
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            border: 15px solid;
+            border-color: #000 #0000 #0000 #0000;
+        }
+        #Type:hover #typetoolTipText, #Aq:hover #aqtoolTipText{
+            top: -200%;
+            visibility: visible;
+            opacity: 1;
+        }
+        #Sr:hover #srtoolTipText, #Ss:hover #sstoolTipText{
+            top: -210%;
+            visibility: visible;
+            opacity: 1;
+        }
+        #Rf:hover #rftoolTipText{
+            top: -220%;
+            visibility: visible;
+            opacity: 1;
+        }
+        #Uv:hover #uvtoolTipText, #Precip:hover #perciptoolTipText, #Vis:hover #vistoolTipText, #Cc:hover #cctoolTipText, #Humid:hover #humidtoolTipText, #Ws:hover #wstoolTipText, #Wd:hover #wdtoolTipText, #Pressure:hover #presstoolTipText, #Aicon:hover #aicontoolTipText{
+            top: -130%;
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div id="wrapper">
+            <p id="opt">WeatherNavigator</p>
+            <div class="options">
+                <input id="searchInput" style="margin-right: 3px;" placeholder="Search">
+                <button id="searchBtn" style="padding-right: 0px;">
+                    <i class="fa fa-search" aria-hidden="true" style="color:black;"></i>
+                </button>
+            </div>
+        </div>
+        <div id="map"></div>
+        <div id="prompt-mess" class="hidden">
+            <div id="prompt-content">
+                <div style="display: flex;">
+                    <div id="Aicon">
+                        <span id="aicontoolTipText"></span>
+                        <i class="fa fa-bell" id="aicon" aria-hidden="true"></i>
+                    </div>
+                    <div id="Aq">
+                        <span id="aqtoolTipText"></span>
+                        <p id="aq" style="margin-top: 18px; font-weight: 600; margin-left: 30px; margin-bottom: 10px;"></p>
+                    </div>
+                    <button id="close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="middle">
+                    <div class="content">
+                        <div class="temp" id="Type">
+                            <span id="typetoolTipText"></span>
+                            <span class="icon">
+                                <img id="Img" src="" style="width: 130%; margin-bottom: 20px;"/>
+                            </span>
+                        </div>
+                        <div id="Rf" style="display: flex; gap: 15px; margin-top: 25px;">
+                            <span id="rftoolTipText">Real feel</span>
+                            <i class="fa fa-thermometer-three-quarters" style="font-size: 25px; margin-left: 5px;"></i>
+                            <p id="rf" style="font-size: 20px; font-weight: 600;"></p>
+                        </div>
+                    </div>
+                    <div class="side-content">
+                        <div id="sc1">
+                            <span id="Ws" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="wstoolTipText">Wind Speed</span>
+                                <i class="fa-solid fa-wind"></i>
+                                <p class="check" id="ws"></p>
+                            </span>
+                            <span id="Humid" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="humidtoolTipText">Humidity</span>
+                                <span class="material-symbols-outlined" style="font-size: 27px;">
+                                    humidity_percentage
+                                </span>
+                                <p class="check" id="humid"></p>
+                            </span>
+                            <span id="Precip" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="perciptoolTipText">Precipitation</span>
+                                <i class="fa-solid fa-cloud-rain" id="precipIcon"></i>
+                                <p class="check" id="precip"></p>
+                            </span>
+                            <span id="Cc" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="cctoolTipText">Cloud Cover</span>
+                                <i class="fa-solid fa-cloud"></i>
+                                <p class="check" id="cc"></p>
+                            </span>
+                        </div>
+                        <div id="sc2">
+                            <span id="Wd" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="wdtoolTipText">Wind Direction</span>
+                                <i class="fa-solid fa-location-arrow"></i>
+                                <p class="check" id="wd"></p>
+                            </span>
+                            <span id="Vis" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="vistoolTipText">Visibility</span>
+                                <i class="fa-solid fa-eye"></i>
+                                <p class="check" id="vis"></p>
+                            </span>
+                            <span id="Pressure" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="presstoolTipText">Pressure</span>
+                                <span class="material-symbols-outlined" style="font-size: 27px">
+                                    compress
+                                </span>
+                                <p class="check" id="pressure"></p>
+                            </span>
+                            <span id="Uv" style="display: flex; gap: 20px; font-size: 25px;">
+                                <span id="uvtoolTipText">UV Index</span>
+                                <span class="material-symbols-outlined" id="uvIcon" style="font-size: 28px;">
+                                    
+                                </span>
+                                <p class="check" id="uv"></p>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 60px; margin-bottom: 40px;">
+                    <div id="Sr" style="display: flex; margin-left: 20px;">
+                        <span id="srtoolTipText">Sunrise</span>
+                        <span class="material-symbols-outlined" style="font-size: 25px;">
+                            sunny
+                        </span>
+                        <span class="material-symbols-outlined" style="font-size: 25px;">
+                            arrow_upward
+                        </span>
+                        <p id="sunrise" style="margin-left: 5px; font-weight: 600;"></p>
+                    </div>
+                    <div id="Ss" style="display: flex; margin-left: 260px; margin-right: 20px;">
+                        <span id="sstoolTipText">Sunrise</span>
+                        <span class="material-symbols-outlined" style="font-size: 25px;">
+                            sunny
+                        </span>
+                        <span class="material-symbols-outlined" style="font-size: 25px;">
+                            arrow_downward
+                        </span>
+                        <p id="sunset" style="margin-left: 5px; font-weight: 600;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>  
+    </div>
+    <div id="image" style="display: hidden;visibility: hidden;">
+        <img src="" style="margin: 0px;" id="img">
+        <p id="temp"></p>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
